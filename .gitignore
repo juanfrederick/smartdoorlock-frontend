@@ -39,5 +39,4 @@ yarn-error.*
 
 android/
 .env
-eas.json
 google-services.json
