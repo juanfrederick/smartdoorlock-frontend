@@ -8,7 +8,7 @@ import { useIsFocused } from "@react-navigation/native";
 const SettingScreen = ({ navigation }) => {
   const [lockIdValue, setLockIdValue] = useState("");
 
-  const { lockId } = useSelector((state) => state.user);
+  const { lockId, phoneToken } = useSelector((state) => state.user);
   const { user } = useSelector((state) => state.auth);
   const dispatch = useDispatch();
   const isFocused = useIsFocused();
@@ -32,6 +32,7 @@ const SettingScreen = ({ navigation }) => {
     const data = {
       dataUpdate: {
         lockId: lockIdValue,
+        phoneToken,
       },
       token: user.token,
     };

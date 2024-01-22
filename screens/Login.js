@@ -24,6 +24,8 @@ const Login = ({ navigation }) => {
     (state) => state.auth
   );
 
+  const { phoneToken } = useSelector((state) => state.user);
+
   useEffect(() => {
     if (isFocused) {
       if (!isLoading && user) {
@@ -61,6 +63,7 @@ const Login = ({ navigation }) => {
     const data = {
       email,
       password,
+      phoneToken,
     };
     dispatch(userLogin(data));
   };

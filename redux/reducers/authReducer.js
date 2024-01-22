@@ -1,5 +1,5 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { storeData } from "../../routes/asynchStorageFunc";
+import { storeData, removeData } from "../../routes/asynchStorageFunc";
 
 const URL = process.env.EXPO_PUBLIC_API_URL;
 
@@ -38,6 +38,35 @@ const userSignup = createAsyncThunk(
           "Content-Type": "application/json",
         },
         body: JSON.stringify(payload),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error);
+      }
+
+      return data;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
+const userLogout = createAsyncThunk(
+  "auth/userLogout",
+  async (payload, { rejectWithValue }) => {
+    const { dataUpdated, token } = payload;
+    try {
+      console.log("asdasdasdasda", payload);
+      console.log("asdasdasdasdassss", payload);
+      const response = await fetch(`${URL}/api/user/logout`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify(dataUpdated),
       });
 
       const data = await response.json();
@@ -115,11 +144,27 @@ const authSlice = createSlice({
       state.isLoading = false;
       state.signupError = action.payload;
     });
+
+    /** Signup reducer */
+    builder.addCase(userLogout.pending, (state, action) => {
+      state.isLoading = true;
+      state.signupError = null;
+    });
+    builder.addCase(userLogout.fulfilled, (state, action) => {
+      console.log("fullfiled", action.payload);
+      state.isLoading = false;
+      removeData("token");
+    });
+    builder.addCase(userLogout.rejected, (state, action) => {
+      console.log("rejected", action.payload);
+      state.isLoading = false;
+      state.signupError = action.payload;
+    });
   },
 });
 
 export default authSlice.reducer;
 
-export { userLogin, userSignup };
+export { userLogin, userSignup, userLogout };
 export const { setIsLoading, resetAuthState, setSignupError, setUser } =
   authSlice.actions;

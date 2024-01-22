@@ -22,11 +22,13 @@ import SettingScreen from "./screens/SettingScreen";
 import HistoryScreen from "./screens/HistoryScreen";
 
 import usePushNotifications from "./hooks/usePushNotificationState";
+import { addPhoneToken } from "./redux/reducers/userReducer";
 
 const Stack = createNativeStackNavigator();
 
 const Route = () => {
   const dispatch = useDispatch();
+  const { expoPushToken } = usePushNotifications();
 
   useEffect(() => {
     retrieveData("token").then((res) => {
@@ -36,6 +38,13 @@ const Route = () => {
       }
     });
   }, [retrieveData]);
+
+  useEffect(() => {
+    if (expoPushToken.data) {
+      dispatch(addPhoneToken(expoPushToken.data));
+    }
+    console.log("This is token", expoPushToken);
+  }, [expoPushToken]);
 
   return (
     <NavigationContainer>
@@ -71,12 +80,6 @@ const Route = () => {
 };
 
 export default function App() {
-  const { expoPushToken } = usePushNotifications();
-
-  useEffect(() => {
-    console.log("This is token", expoPushToken);
-  }, [expoPushToken]);
-
   return (
     <Provider store={store}>
       <Route />

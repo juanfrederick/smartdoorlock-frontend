@@ -8,6 +8,7 @@ const initialState = {
   id: null,
   isLoading: false,
   userError: null,
+  phoneToken: null,
 };
 
 const getUserData = createAsyncThunk(
@@ -66,6 +67,9 @@ const userSlice = createSlice({
   name: "user",
   initialState,
   reducers: {
+    addPhoneToken: (state, action) => {
+      state.phoneToken = action.payload;
+    },
     resetUserState: (state) => {
       state.lockId = null;
       state.email = null;
@@ -119,5 +123,5 @@ const userSlice = createSlice({
 });
 
 export default userSlice.reducer;
-export const { resetUserState } = userSlice.actions;
+export const { resetUserState, addPhoneToken } = userSlice.actions;
 export { getUserData, updateUserData };

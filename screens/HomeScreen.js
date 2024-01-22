@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { Button, StyleSheet, Text, View, BackHandler } from "react-native";
 import { useDispatch, useSelector } from "react-redux";
-import { resetAuthState } from "../redux/reducers/authReducer";
+import { resetAuthState, userLogout } from "../redux/reducers/authReducer";
 import { removeData, retrieveData } from "../routes/asynchStorageFunc";
 import { getUserData, resetUserState } from "../redux/reducers/userReducer";
 import {
@@ -17,7 +17,7 @@ const HomeScreen = ({ navigation }) => {
   const dispatch = useDispatch();
   const isFocused = useIsFocused();
 
-  const { lockId, userError } = useSelector((state) => state.user);
+  const { lockId, userError, phoneToken } = useSelector((state) => state.user);
   const { user } = useSelector((state) => state.auth);
   const { lockStatus, lockError, isLoading } = useSelector(
     (state) => state.lock
@@ -65,7 +65,9 @@ const HomeScreen = ({ navigation }) => {
   }, [isFocused, userError]);
 
   const logoutHandler = () => {
-    removeData("token");
+    dispatch(
+      userLogout({ dataUpdated: { phoneToken: phoneToken }, token: user.token })
+    );
     navigation.navigate("Login");
     dispatch(resetAuthState());
     dispatch(resetUserState());
@@ -115,6 +117,7 @@ const HomeScreen = ({ navigation }) => {
   return (
     <View style={styles.container}>
       {lockError && <Text>{lockError}</Text>}
+      <Text>{phoneToken}</Text>
       <Text>HomeScreen, Welcome back {user !== null && user.email}!</Text>
       <View style={styles.logoutBtnCont}>
         <Button title="logout" onPress={logoutHandler} />
