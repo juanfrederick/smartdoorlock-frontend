@@ -54,6 +54,10 @@ const HomeScreen = ({ navigation }) => {
   useEffect(() => {
     if (userError === "Request is not authorized") {
       console.log("---home-screen request is not authorized");
+      console.log(
+        "this is user in redux to get the email for delete connected user",
+        user
+      );
       dispatch(resetAuthState());
       dispatch(resetUserState());
       dispatch(resetLockState());
