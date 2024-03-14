@@ -96,12 +96,37 @@ const getLockHistory = createAsyncThunk(
   }
 );
 
+const getDetectHistory = createAsyncThunk(
+  "lock/getDetectHistory",
+  async (payload, { rejectWithValue }) => {
+    try {
+      const response = await fetch(`${URL}/api/lock/detect`, {
+        headers: {
+          Authorization: `Bearer ${payload}`,
+        },
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error);
+      }
+
+      return data;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
+  }
+);
+
 const initialState = {
   id: null,
   lockStatus: null,
   lockError: null,
   isLoading: false,
   lockHistory: [],
+  currentDetected: "",
+  detectHistory: [],
 };
 
 const lockSlice = createSlice({
@@ -114,6 +139,8 @@ const lockSlice = createSlice({
       state.lockError = null;
       state.isLoading = false;
       state.lockHistory = [];
+      state.currentDetected = "";
+      state.detectHistory = [];
     },
   },
   extraReducers: (builder) => {
@@ -183,9 +210,37 @@ const lockSlice = createSlice({
       // state.lockError = action.payload;
       state.isLoading = false;
     });
+
+    builder.addCase(getDetectHistory.pending, (state, action) => {
+      state.isLoading = true;
+    });
+    builder.addCase(getDetectHistory.fulfilled, (state, action) => {
+      console.log("---getDetectHistory-fullfiled");
+      const { data } = action.payload;
+
+      if (data.length > 0) {
+        const detectHistory = data.map((val) => {
+          return {
+            id: val.id,
+            date: val.date,
+            cropImage: val.cropImage,
+          };
+        });
+
+        const latestDetect = data[data.length - 1].fullImage;
+
+        state.detectHistory = detectHistory;
+        state.currentDetected = latestDetect;
+        state.isLoading = false;
+      }
+    });
+    builder.addCase(getDetectHistory.rejected, (state, action) => {
+      console.log("---getDetectHistory-rejected");
+      state.isLoading = false;
+    });
   },
 });
 
 export default lockSlice.reducer;
-export { getLock, unlockDoor, lockDoor, getLockHistory };
+export { getLock, unlockDoor, lockDoor, getLockHistory, getDetectHistory };
 export const { resetLockState } = lockSlice.actions;

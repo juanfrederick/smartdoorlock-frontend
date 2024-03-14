@@ -72,6 +72,12 @@ const HistoryScreen = ({ navigation }) => {
             navigation.navigate("History");
           }}
         />
+        <Button
+          title="detect"
+          onPress={() => {
+            navigation.navigate("Detect");
+          }}
+        />
       </View>
     </View>
   );

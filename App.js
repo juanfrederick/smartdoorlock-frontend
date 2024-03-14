@@ -23,6 +23,7 @@ import HistoryScreen from "./screens/HistoryScreen";
 
 import usePushNotifications from "./hooks/usePushNotificationState";
 import { addPhoneToken } from "./redux/reducers/userReducer";
+import DetectScreen from "./screens/DetectScreen";
 
 const Stack = createNativeStackNavigator();
 
@@ -72,6 +73,11 @@ const Route = () => {
         <Stack.Screen
           name="Signup"
           component={Signup}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="Detect"
+          component={DetectScreen}
           options={{ headerShown: false }}
         />
       </Stack.Navigator>

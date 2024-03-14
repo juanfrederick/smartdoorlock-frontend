@@ -1,53 +1,57 @@
-import React, { useEffect, useState } from "react";
-import { BackHandler, Button, StyleSheet, Text, View } from "react-native";
-import InputField from "../components/InputField";
-import { useDispatch, useSelector } from "react-redux";
-import { updateUserData } from "../redux/reducers/userReducer";
 import { useIsFocused } from "@react-navigation/native";
+import React, { useEffect } from "react";
+import {
+  BackHandler,
+  Button,
+  Image,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
+import { useDispatch, useSelector } from "react-redux";
+import { getDetectHistory } from "../redux/reducers/lockReducer";
 
-const SettingScreen = ({ navigation }) => {
-  const [lockIdValue, setLockIdValue] = useState("");
-
-  const { lockId, phoneToken } = useSelector((state) => state.user);
-  const { user } = useSelector((state) => state.auth);
-  const dispatch = useDispatch();
+const DetectScreen = ({ navigation }) => {
   const isFocused = useIsFocused();
+
+  const { user } = useSelector((state) => state.auth);
+  const { detectHistory } = useSelector((state) => state.lock);
+
+  const dispatch = useDispatch();
 
   useEffect(() => {
     if (isFocused) {
+      dispatch(getDetectHistory(user.token));
+
       BackHandler.addEventListener("hardwareBackPress", () => {
         navigation.navigate("Home");
         return true;
       });
     }
-  }, []);
-
-  useEffect(() => {
-    if (lockId) {
-      setLockIdValue(lockId);
-    }
-  }, [lockId]);
-
-  const updateHandler = () => {
-    const data = {
-      dataUpdate: {
-        lockId: lockIdValue,
-        phoneToken,
-      },
-      token: user.token,
-    };
-    dispatch(updateUserData(data));
-  };
+  }, [isFocused]);
 
   return (
     <View style={styles.container}>
-      <Text>SettingScreen</Text>
-      <InputField
-        label="Lock Id"
-        setValue={setLockIdValue}
-        value={lockIdValue}
-      />
-      <Button title="Update" onPress={updateHandler} />
+      <Text>DetectScreen</Text>
+      <View>
+        {detectHistory.map((val) => {
+          return (
+            <View>
+              <Text key={val.id}>{val.date}</Text>
+              {val.cropImage.map((val, index) => {
+                return (
+                  <Image
+                    key={index}
+                    source={{ uri: `data:image/jpeg;base64,${val}` }}
+                    alt="test"
+                    style={{ width: 200, height: 200 }}
+                  />
+                );
+              })}
+            </View>
+          );
+        })}
+      </View>
       <View style={styles.buttonContainer}>
         <Button
           title="setting"
@@ -94,4 +98,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default SettingScreen;
+export default DetectScreen;

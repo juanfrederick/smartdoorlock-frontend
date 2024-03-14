@@ -1,10 +1,18 @@
 import React, { useEffect } from "react";
-import { Button, StyleSheet, Text, View, BackHandler } from "react-native";
+import {
+  Button,
+  StyleSheet,
+  Text,
+  View,
+  BackHandler,
+  Image,
+} from "react-native";
 import { useDispatch, useSelector } from "react-redux";
 import { resetAuthState, userLogout } from "../redux/reducers/authReducer";
 import { removeData, retrieveData } from "../routes/asynchStorageFunc";
 import { getUserData, resetUserState } from "../redux/reducers/userReducer";
 import {
+  getDetectHistory,
   getLock,
   lockDoor,
   resetLockState,
@@ -22,6 +30,7 @@ const HomeScreen = ({ navigation }) => {
   const { lockStatus, lockError, isLoading } = useSelector(
     (state) => state.lock
   );
+  const { currentDetected } = useSelector((state) => state.lock);
 
   useEffect(() => {
     if (isFocused) {
@@ -37,13 +46,14 @@ const HomeScreen = ({ navigation }) => {
       if (user) {
         console.log("ini user", user);
         dispatch(getUserData(user.token));
+        dispatch(getDetectHistory(user.token));
       }
 
       if (!user) {
         navigation.navigate("Login");
       }
     }
-  }, [user, isFocused]);
+  }, [user, isFocused, lockId]);
 
   useEffect(() => {
     if (lockId && user) {
@@ -75,6 +85,7 @@ const HomeScreen = ({ navigation }) => {
     navigation.navigate("Login");
     dispatch(resetAuthState());
     dispatch(resetUserState());
+    dispatch(resetLockState());
   };
 
   const handleAuthenticationPress = async () => {
@@ -121,7 +132,18 @@ const HomeScreen = ({ navigation }) => {
   return (
     <View style={styles.container}>
       {lockError && <Text>{lockError}</Text>}
-      <Text>{phoneToken}</Text>
+      {/* <Text>{phoneToken}</Text> */}
+      <Text>Latest Detected User:</Text>
+      <View>
+        {currentDetected && (
+          <Image
+            source={{ uri: `data:image/jpeg;base64,${currentDetected}` }}
+            alt="current-detected"
+            style={{ width: 500, height: 200 }}
+            resizeMode="contain"
+          />
+        )}
+      </View>
       <Text>HomeScreen, Welcome back {user !== null && user.email}!</Text>
       <View style={styles.logoutBtnCont}>
         <Button title="logout" onPress={logoutHandler} />
@@ -150,6 +172,12 @@ const HomeScreen = ({ navigation }) => {
           title="history"
           onPress={() => {
             navigation.navigate("History");
+          }}
+        />
+        <Button
+          title="detect"
+          onPress={() => {
+            navigation.navigate("Detect");
           }}
         />
       </View>
